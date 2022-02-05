@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
+import { ErrorDialogComponent } from './../../shared/components/error-dialog/error-dialog.component';
 import { Course } from './../model/course';
 import { CoursesService } from './../services/courses.service';
 
@@ -13,8 +16,22 @@ export class CoursesComponent implements OnInit {
   courses$: Observable<Course[]>;
   displayedColumns = ['name', 'category'];
 
-  constructor(private coursesService: CoursesService) {
-    this.courses$ = this.coursesService.getList();
+  constructor(
+    private coursesService: CoursesService,
+    public errorMsg: MatDialog
+  ) {
+    this.courses$ = this.coursesService.getList().pipe(
+      catchError((error) => {
+        this.onError('Erro ao carregar cursos.');
+        return of([]);
+      })
+    );
+  }
+
+  onError(errorMsg: string) {
+    this.errorMsg.open(ErrorDialogComponent, {
+      data: errorMsg,
+    });
   }
 
   ngOnInit(): void {}

@@ -15,7 +15,7 @@ export class CoursesService {
   getList() {
     return this.http.get<Course[]>(this.API).pipe(
       first(),
-      delay(5000),
+      delay(200),
       tap((courses) => console.log(courses))
     );
   }
